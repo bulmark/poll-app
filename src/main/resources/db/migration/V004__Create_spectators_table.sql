@@ -1,4 +1,4 @@
-create table spectators
+create table if not exists  spectators
 (
     poll_id integer not null,
     user_id integer not null,

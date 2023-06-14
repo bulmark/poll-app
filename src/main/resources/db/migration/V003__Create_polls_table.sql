@@ -1,4 +1,4 @@
-create table polls
+create table if not exists polls
 (
     create_at date not null,
     id serial not null,

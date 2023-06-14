@@ -1,4 +1,4 @@
-create table questions
+create table if not exists  questions
 (
     id serial not null,
     multiple boolean not null,

@@ -1,4 +1,4 @@
-create table answers
+create table if not exists  answers
 (
     id serial not null,
     question_id integer not null,

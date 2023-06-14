@@ -1,4 +1,4 @@
-create table votes
+create table if not exists  votes
 (
     answer_id integer not null,
     create_at date not null,
