@@ -1,9 +1,9 @@
 spring:
   datasource:
     username: root
-    password: asd123
-    url: jdbc:mysql://localhost:3306/survey
+    password:
+    url: jdbc:mysql://localhost:3306/test_1
     driver-class-name: com.mysql.cj.jdbc.Driver
 
-  flyway:
-    schemas: test_pollapp
+#  flyway:
+#    schemas: test_pollapp
