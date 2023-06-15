@@ -1,0 +1,6 @@
+FROM postgres:15.3
+
+ENV POSTGRES_PASSWORD postgres
+ENV POSTGRES_DB poll_bd
+
+EXPOSE 5432в
