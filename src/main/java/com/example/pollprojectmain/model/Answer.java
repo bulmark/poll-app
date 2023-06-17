@@ -29,9 +29,6 @@ public class Answer {
     @JsonIgnore
     private List<Vote> votes = new ArrayList<>();
 
-    @Transient
-    private Long votesCount;
-
     @Column(nullable = false)
     String text;
 

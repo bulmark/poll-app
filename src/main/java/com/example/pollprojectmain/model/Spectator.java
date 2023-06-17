@@ -26,4 +26,7 @@ public class Spectator {
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "poll_id", nullable = false)
     private Poll poll;
+
+    @Column(name = "can_read_results")
+    private Boolean canReadResults;
 }
