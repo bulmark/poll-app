@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Type;
 
+import java.sql.Timestamp;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -37,9 +38,9 @@ public class Poll {
     @Column(name = "voting_time ")
     private Duration votingTime;
     @Column(name = "up_to_date")
-    private LocalDate upToDate;
+    private Timestamp upToDate;
     @Column(name = "create_at", nullable = false)
-    private LocalDate createAt;
+    private Timestamp createAt;
 
     @OneToMany(mappedBy = "poll", cascade = CascadeType.ALL)
     private List<Question> questions = new ArrayList<>();
@@ -47,8 +48,8 @@ public class Poll {
     public Poll(User owner,
                 String text,
                 Duration period,
-                LocalDate upToDate,
-                LocalDate createAt,
+                Timestamp upToDate,
+                Timestamp createAt,
                 List<Question> questions) {
 
         this.owner = owner;

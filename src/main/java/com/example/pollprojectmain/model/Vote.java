@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.sql.Timestamp;
 import java.time.LocalDate;
 
 @Entity
@@ -24,9 +25,9 @@ public class Vote {
     private User user;
 
     @Column(name = "create_at", nullable = false)
-    LocalDate createAt;
+    Timestamp createAt;
 
-    public Vote(Answer answer, User user, LocalDate createAt) {
+    public Vote(Answer answer, User user, Timestamp createAt) {
         this.answer = answer;
         this.user = user;
         this.createAt = createAt;
