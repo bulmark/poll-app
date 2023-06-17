@@ -4,16 +4,16 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import com.example.pollprojectmain.model.Role;
+
+import java.util.List;
 
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder
-public class UserDto {
+public class QuestionDto {
     private Integer id;
-    private String username;
-    private String email;
-    private String password;
-    private Role role;
+    private String text;
+    private Boolean multiple;
+    private List<AnswerDto> answers;
 }
