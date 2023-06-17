@@ -34,9 +34,11 @@ public class Poll {
     @Type(PostgreSQLIntervalType.class)
     @Column(columnDefinition = "interval")
     private Duration period;
-    @Column(name = "up_to_date", nullable = false)
+    @Column(name = "voting_time ")
+    private Duration votingTime;
+    @Column(name = "up_to_date")
     private LocalDate upToDate;
-    @Column(nullable = false)
+    @Column(name = "create_at", nullable = false)
     private LocalDate createAt;
 
     @OneToMany(mappedBy = "poll", cascade = CascadeType.ALL)
