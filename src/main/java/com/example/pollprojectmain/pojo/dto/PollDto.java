@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.sql.Timestamp;
 import java.time.Duration;
 import java.util.List;
 
@@ -21,6 +22,9 @@ public class PollDto {
     private Duration period;
     @Nullable
     private Duration votingTime;
+    private Timestamp createAt;
+    @Nullable
+    private Timestamp upToDate;
     private List<QuestionDto> answers;
 
 }
