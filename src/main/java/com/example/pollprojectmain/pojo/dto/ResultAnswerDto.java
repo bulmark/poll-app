@@ -9,6 +9,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ResultAnswerDto extends AnswerDto{
+public class ResultAnswerDto extends AnswerDto {
     private Integer votesCount;
 }
