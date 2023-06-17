@@ -1,9 +1,13 @@
 package com.example.pollprojectmain.service;
 
-import org.springframework.stereotype.Service;
+import com.example.pollprojectmain.model.User;
+import com.example.pollprojectmain.pojo.dto.UserDto;
 
-@Service
-public class UserService {
+import java.util.List;
 
-
+public interface UserService {
+    public UserDto create(UserDto user);
+    public UserDto changePassword(String username, String password);
+    public UserDto update(UserDto user);
+    public List<UserDto> getAll();
 }
