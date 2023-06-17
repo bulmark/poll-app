@@ -34,7 +34,7 @@ public class Poll {
     @Type(PostgreSQLIntervalType.class)
     @Column(columnDefinition = "interval")
     private Duration period;
-    @Column(name = "up_to_date", nullable = false)
+    @Column(name = "up_to_date")
     private LocalDate upToDate;
     @Column(nullable = false)
     private LocalDate createAt;
