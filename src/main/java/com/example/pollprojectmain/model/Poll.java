@@ -4,7 +4,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.hypersistence.utils.hibernate.type.interval.PostgreSQLIntervalType;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.Type;
 
 import java.sql.Timestamp;
@@ -17,7 +19,8 @@ import java.util.Set;
 
 @Entity
 @Table(name = "polls")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 public class Poll {
     @Id
@@ -44,6 +47,9 @@ public class Poll {
 
     @OneToMany(mappedBy = "poll", cascade = CascadeType.ALL)
     private List<Question> questions = new ArrayList<>();
+
+    @OneToMany(mappedBy = "poll", cascade = CascadeType.ALL)
+    private List<Spectator> spectators = new ArrayList<>();
 
     public Poll(User owner,
                 String text,

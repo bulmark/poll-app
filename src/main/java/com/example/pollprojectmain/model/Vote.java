@@ -2,14 +2,17 @@ package com.example.pollprojectmain.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.sql.Timestamp;
 import java.time.LocalDate;
 
 @Entity
 @Table(name = "votes")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 public class Vote {
     @Id

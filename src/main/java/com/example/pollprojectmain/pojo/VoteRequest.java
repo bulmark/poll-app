@@ -1,6 +1,7 @@
 package com.example.pollprojectmain.pojo;
 
 import com.example.pollprojectmain.pojo.dto.AnswerDto;
+import com.example.pollprojectmain.pojo.dto.UserDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,6 +14,6 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 public class VoteRequest{
-    private String username;
+    private UserDto user;
     private List<AnswerDto> answers;
 }
