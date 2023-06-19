@@ -1,13 +1,12 @@
 package com.example.pollprojectmain.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
 @Table(name = "spectators")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @IdClass(SpectatorId.class)
@@ -29,4 +28,9 @@ public class Spectator {
 
     @Column(name = "can_read_results")
     private Boolean canReadResults;
+
+    public Spectator(Poll poll, User user) {
+        this.poll = poll;
+        this.user = user;
+    }
 }

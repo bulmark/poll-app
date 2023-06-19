@@ -12,7 +12,4 @@ import lombok.NoArgsConstructor;
 public class Response {
     private String message;
     private String date;
-
-    public static class Request {
-    }
 }
