@@ -2,7 +2,6 @@ package com.example.pollprojectmain.pojo.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.annotation.Nullable;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
@@ -12,7 +11,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.sql.Timestamp;
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,7 +24,10 @@ public class PollDto {
     @Nullable
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private Integer ownerId;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private String ownerUsername;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private UserDto owner;
 
     @Size(
             min = 1,
@@ -52,6 +53,10 @@ public class PollDto {
     private Timestamp createAt;
     @Nullable
     private Timestamp upToDate;
+    @Size(
+            min = 1,
+            message = "A poll cannot have zero questions"
+    )
     private List<QuestionDto> questions = new ArrayList<>();
 
 }

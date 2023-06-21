@@ -1,131 +1,111 @@
 package com.example.pollprojectmain.service.Impl;
 
 import com.example.pollprojectmain.exception.BadArgumentException;
-import com.example.pollprojectmain.exception.ResourceNotFoundException;
-import com.example.pollprojectmain.model.Answer;
-import com.example.pollprojectmain.model.Poll;
-import com.example.pollprojectmain.model.Question;
-import com.example.pollprojectmain.model.Spectator;
+import com.example.pollprojectmain.mapper.AnswerListMapper;
+import com.example.pollprojectmain.mapper.PollMapper;
+import com.example.pollprojectmain.model.*;
 import com.example.pollprojectmain.pojo.Response;
-import com.example.pollprojectmain.pojo.VoteRequest;
 import com.example.pollprojectmain.pojo.dto.AnswerDto;
 import com.example.pollprojectmain.pojo.dto.PollDto;
-import com.example.pollprojectmain.pojo.dto.QuestionDto;
 import com.example.pollprojectmain.pojo.dto.UserDto;
-import com.example.pollprojectmain.repository.PollRepository;
-import com.example.pollprojectmain.repository.UserRepository;
+import com.example.pollprojectmain.repository.*;
 import com.example.pollprojectmain.service.PollService;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.sql.Timestamp;
-import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.*;
 
 @Service
 public class PollServiceImpl implements PollService {
 
     private PollRepository pollRepository;
+    private QuestionRepository questionRepository;
     private UserRepository userRepository;
+    private SpectatorRepository spectatorRepository;
+    private PollMapper pollMapper;
+    private AnswerListMapper answerListMapper;
+    private VoteRepository voteRepository;
 
     @Autowired
-    public PollServiceImpl(PollRepository pollRepository, UserRepository userRepository) {
+    public PollServiceImpl(PollRepository pollRepository,
+                           UserRepository userRepository,
+                           SpectatorRepository spectatorRepository,
+                           PollMapper pollMapper,
+                           QuestionRepository questionRepository,
+                           AnswerListMapper answerListMapper,
+                           VoteRepository voteRepository) {
         this.pollRepository = pollRepository;
         this.userRepository = userRepository;
+        this.spectatorRepository = spectatorRepository;
+        this.pollMapper = pollMapper;
+        this.questionRepository = questionRepository;
+        this.answerListMapper = answerListMapper;
+        this.voteRepository = voteRepository;
     }
 
     @Override
-    public PollDto getById(Integer id) {
-        var poll = pollRepository.findById(id).orElseThrow(() ->
-                    new ResourceNotFoundException("No such poll with " + id + " id")
+    public Poll getById(Integer id) {
+        return pollRepository.findById(id).orElseThrow(() ->
+                new EntityNotFoundException("No such poll with " + id + " id")
+        );
+    }
+    @Override
+    public List<Poll> getByOwner(Integer ownerId) {
+        User user = userRepository.findById(ownerId).orElseThrow( () ->
+            new EntityNotFoundException("No such user with " + ownerId + " id")
         );
 
-        return wrapPollToDto(poll, false);
+        return pollRepository.findPollsByOwner(user);
     }
     @Override
-    public List<PollDto> getByOwner(Integer ownerId) {
-        var polls = pollRepository.findAll().stream()
-                .filter(poll -> poll.getOwner().getId().equals(ownerId))
-                .map(poll -> wrapPollToDto(poll, false))
-                .collect(Collectors.toList());
-
-        return polls;
-    }
-    @Override
-    public List<PollDto> getAvailableFor(Integer userId) {
-        var polls = pollRepository.findAll().stream()
-                .filter(poll -> poll.getSpectators().stream()
-                        .anyMatch(spectator -> spectator.getUser().getId().equals(userId))
-                )
-//                .filter(poll -> !isPollOver(poll))
-                .map(poll -> wrapPollToDto(poll, false))
-                .collect(Collectors.toList());
-
-        return polls;
-    }
-
-    @Override
-    public PollDto getResultById(Integer id) {
-        var poll = pollRepository.findById(id).orElseThrow(() ->
-                new ResourceNotFoundException("No such poll with " + id + " id")
+    public List<Poll> getAvailableFor(Integer userId) {
+        User user = userRepository.findById(userId).orElseThrow( () ->
+                new EntityNotFoundException("No such user with " + userId + " id")
         );
 
-        return wrapPollToDto(poll, true);
+        return spectatorRepository.findSpectatorsByUser(user).stream()
+                .map(spectator -> spectator.getPoll())
+                .filter(poll -> poll.isOver())
+                .toList();
+    }
+
+    @Override
+    public Poll getWithResult(Integer id) {
+        Poll poll = pollRepository.findById(id).orElseThrow(() ->
+                new EntityNotFoundException("No such poll with " + id + " id")
+        );
+
+        for (Question question : poll.getQuestions()) {
+
+            Long totalVotes = question.getAnswers().stream()
+                    .mapToLong(answer -> answer.getVotes().stream().count())
+                    .sum();
+
+            for (Answer answer : question.getAnswers()) {
+
+                    Integer votesForAnswer = answer.getVotes().size();
+                    Double percent = votesForAnswer / (double) totalVotes * 100;
+                    answer.setVotesCount(votesForAnswer);
+                    answer.setPercent(percent);
+                }
+
+            }
+
+        return poll;
     }
 
 
     @Override
     public Response create(PollDto pollDto) {
-        if (pollDto.getQuestions().stream().count() == 0) {
-            throw new BadArgumentException("A poll cannot have zero questions");
-        }
 
-        for (var question : pollDto.getQuestions()) {
-            if (question.getAnswers().stream().count() < 2) {
-                throw new BadArgumentException("A question cannot have zero or one answer");
-            }
-        }
-
-        var owner = userRepository.findById(pollDto.getOwnerId()).orElseThrow( () ->
-                new ResourceNotFoundException("No such poll with " + pollDto.getOwnerId() + " id")
-        );
-
-        var poll = new Poll();
-        poll.setText(pollDto.getText());
-        poll.setOwner(owner);
-        poll.setCreateAt(pollDto.getCreateAt());
-        poll.setUpToDate(pollDto.getUpToDate());
-
-        if (pollDto.getVotingTime() != null) {
-            poll.setVotingTime(Duration.parse(pollDto.getVotingTime()));
-        }
-
-        if (pollDto.getPeriod() != null) {
-            poll.setPeriod(Duration.parse(pollDto.getPeriod()));
-        }
-
-
-        for (var questionDto : pollDto.getQuestions()) {
-            var question = new Question();
+        Poll poll = pollMapper.toModel(pollDto);
+        poll.getQuestions().forEach(question -> {
             question.setPoll(poll);
-            question.setText(questionDto.getText());
-            question.setMultiple(questionDto.getMultiple());
-
-            for (var answerDto : questionDto.getAnswers()) {
-                var answer = new Answer();
-                answer.setQuestion(question);
-                answer.setText(answerDto.getText());
-                question.getAnswers().add(answer);
-            }
-
-            poll.getQuestions().add(question);
-        }
-
+            question.getAnswers().forEach(answer -> answer.setQuestion(question));
+        });
         pollRepository.save(poll);
-
         return new Response(
                 "New poll successfully created",
                 LocalDateTime.now().toString()
@@ -134,25 +114,14 @@ public class PollServiceImpl implements PollService {
 
     @Override
     public Response allowToVote(Integer pollId, List<UserDto> usersDto) {
-        var poll = pollRepository.findById(pollId).orElseThrow(() ->
-                new BadArgumentException("No such poll with " + pollId + " id")
+        Poll poll = pollRepository.findById(pollId).orElseThrow(() ->
+                new EntityNotFoundException("No such poll with " + pollId + " id")
         );
 
-        var users = usersDto.stream()
-                .map(userDto -> userRepository.findById(userDto.getId()).orElseThrow(() ->
-                        new BadArgumentException("No such user with " + userDto.getId() + " id")
-                ))
-                .collect(Collectors.toSet());
-
-
-
-//        users.stream()
-//                .filter(user -> !poll.getSpectators().stream().
-//                        anyMatch(spectator -> spectator.getUser().getId().equals(user.getId())))
-//                .map(user -> poll.getSpectators().add(new Spectator(poll, user)))
-//                .close();
-
-        for (var user : users) {
+        for (var userDto : usersDto) {
+            User user = userRepository.findById(userDto.getId()).orElseThrow(() ->
+                    new EntityNotFoundException("No such user with " + userDto.getId() + " id")
+            );
             poll.getSpectators().add(new Spectator(poll, user));
         }
 
@@ -164,86 +133,82 @@ public class PollServiceImpl implements PollService {
         );
     }
     @Override
-    public Response vote(VoteRequest voteRequest) {
-        return null;
-    }
+    public Response vote(Integer userId, Integer pollId, List<AnswerDto> answersDto) {
+        Poll poll = pollRepository.findById(pollId).orElseThrow(
+                () -> new EntityNotFoundException("No such poll with " + pollId + " id")
+        );
 
-    @Override
-    public Response allowToGetResult(Integer pollId, List<UserDto> users) {
-
-
-        return null;
-    }
-
-
-    private PollDto wrapPollToDto(Poll poll, Boolean withResult) {
-
-        var pollDto = PollDto.builder()
-                .id(poll.getId())
-                .text(poll.getText())
-                .ownerUsername(poll.getOwner().getUsername())
-                .createAt(poll.getCreateAt())
-                .upToDate(poll.getUpToDate())
-                .questions(new ArrayList<>())
-                .build();
-
-        if (poll.getPeriod() != null) {
-            pollDto.setPeriod(poll.getPeriod().toString());
+        if (poll.isOver()) {
+            throw new BadArgumentException("Poll with id " + pollId + " is over");
         }
 
-        if (poll.getVotingTime() != null) {
-            pollDto.setVotingTime(poll.getVotingTime().toString());
+        User user = userRepository.findById(userId).orElseThrow(() ->
+                new EntityNotFoundException("No such user with " + userId + " id")
+        );
+
+        List<Answer> answers = answerListMapper.toModelList(answersDto);
+
+        validateVoteRequest(poll, answers, user);
+
+        for (Answer answer : answers) {
+            voteRepository.save(new Vote(answer, user));
+        }
+
+        return new Response(
+                "User with id " + user.getId() + " has successfully voted",
+                LocalDateTime.now().toString()
+        );
+    }
+
+
+    private void validateVoteRequest(Poll poll, List<Answer> answers, User user) throws BadArgumentException {
+
+        Map<Integer, Set<Integer>> questionIdToAnswerIdMap = new HashMap<>();
+        for (Answer answer : answers) {
+            Integer questionId = answer.getQuestion().getId();
+
+            if (questionIdToAnswerIdMap.containsKey(questionId)) {
+                questionIdToAnswerIdMap.get(questionId).add(answer.getId());
+            } else {
+                Set<Integer> answersId = new HashSet<>();
+                answersId.add(answer.getId());
+                questionIdToAnswerIdMap.put(questionId, answersId);
+            }
+        }
+
+        List<Question> questions = poll.getQuestions();
+        if (!questions.equals(questionIdToAnswerIdMap.keySet())) {
+            throw new BadArgumentException("Submitted a vote for a question from another poll, or not all questions were voted on");
         }
 
 
-        for (var question : poll.getQuestions()) {
-            var questionDto  = QuestionDto.builder()
-                    .id(question.getId())
-                    .text(question.getText())
-                    .multiple(question.getMultiple())
-                    .answers(new ArrayList<>())
-                    .build();
-
-            var totalVotes = question.getAnswers().stream()
-                    .mapToLong(answer -> answer.getVotes().stream().count())
-                    .sum();
-
-
-            for (var answer : question.getAnswers()) {
-                var answerDto = AnswerDto.builder().id(answer.getId()).text(answer.getText()).build();
-
-                if (withResult == true) {
-                    var votesForAnswer = answer.getVotes().stream().count();
-                    var percent = votesForAnswer / (double) totalVotes * 100;
-                    answerDto.setVotesCount(votesForAnswer);
-                    answerDto.setPercent(percent);
-                }
-
-                questionDto.getAnswers().add(answerDto);
+        for (Question question : poll.getQuestions()) {
+            if (!questionIdToAnswerIdMap.containsKey(question.getId())) {
+                throw new BadArgumentException("You didn't vote in the question with id " + question.getId() +  " and text:\n" +
+                        question.getText());
             }
 
-            pollDto.getQuestions().add(questionDto);
+            Set<Integer> answersId = questionIdToAnswerIdMap.get(question.getId());
+
+            if (answersId.size() == 0) {
+                throw new BadArgumentException("You didnt vote in the question with id " + question.getId() +  " and text:\n" +
+                        question.getText());
+            }
+
+            if (!question.getMultiple() && answersId.size() > 1) {
+                throw new BadArgumentException("To much votes in the question with id " + question.getId() +  " and text:\n" +
+                        question.getText());
+            }
         }
 
-        return pollDto;
+        if (voteRepository.existsByAnswerAndUser(answers.get(0), user)) {
+            throw new BadArgumentException("User with id " + user.getId() + " has already voted");
+        }
+
     }
-
-    private Boolean isPollOver(Poll poll) {
-
-        var votingTime = poll.getVotingTime();
-
-        var currentDateTime = Timestamp.valueOf(LocalDateTime.now());
-        var timeOfVoteEnding = Timestamp.from(poll.getCreateAt().toInstant().plus(votingTime));
-
-        if ( votingTime == null) {
-            return false;
-        }
-
-        if (currentDateTime.before(timeOfVoteEnding)) {
-            return false;
-        }
-
-        return true;
+    @Override
+    public Response allowToGetResult(Integer pollId, List<UserDto> users) {
+        return null;
     }
 
 }

@@ -24,7 +24,7 @@ public class AnswerDto {
     private String text;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    private Long votesCount;
+    private Integer votesCount;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private Double percent;

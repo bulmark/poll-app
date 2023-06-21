@@ -30,9 +30,8 @@ public class Vote {
     @Column(name = "create_at", nullable = false)
     Timestamp createAt;
 
-    public Vote(Answer answer, User user, Timestamp createAt) {
+    public Vote(Answer answer, User user) {
         this.answer = answer;
         this.user = user;
-        this.createAt = createAt;
     }
 }

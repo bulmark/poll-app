@@ -1,8 +1,10 @@
 package com.example.pollprojectmain.contoller;
 
+import com.example.pollprojectmain.model.Answer;
+import com.example.pollprojectmain.model.Poll;
 import com.example.pollprojectmain.model.User;
 import com.example.pollprojectmain.pojo.Response;
-import com.example.pollprojectmain.pojo.VoteRequest;
+import com.example.pollprojectmain.pojo.dto.AnswerDto;
 import com.example.pollprojectmain.pojo.dto.PollDto;
 import com.example.pollprojectmain.pojo.dto.UserDto;
 import com.example.pollprojectmain.repository.UserRepository;
@@ -25,7 +27,7 @@ public class PollController {
         this.userRepository = userRepository;
     }
     @GetMapping("/polls/{id}")
-    public PollDto getPoll(@PathVariable Integer id) {
+    public Poll getPoll(@PathVariable Integer id) {
         return pollService.getById(id);
     }
 
@@ -36,19 +38,19 @@ public class PollController {
     }
 
     @GetMapping("/users/{userId}/polls/available")
-    public List<PollDto> getAvailablePolls(@PathVariable Integer userId) {
+    public List<Poll> getAvailablePolls(@PathVariable Integer userId) {
         return pollService.getAvailableFor(userId);
     }
 
     @GetMapping("/users/{userId}/polls/created")
-    public List<PollDto> getCreatedPolls(@PathVariable Integer userId) {
+    public List<Poll> getCreatedPolls(@PathVariable Integer userId) {
         return pollService.getByOwner(userId);
     }
 
 
     @GetMapping("/polls/{id}/result")
-    public PollDto getResultOfPoll(@PathVariable Integer id) {
-        return pollService.getResultById(id);
+    public Poll getResultOfPoll(@PathVariable Integer id) {
+        return pollService.getWithResult(id);
     }
 
     @PostMapping("/users/{userId}/polls")
@@ -62,10 +64,13 @@ public class PollController {
         return pollService.allowToVote(id, usersDto);
     }
 
-    @PutMapping("/polls/{id}")
-    public Response vote(@PathVariable("id") Integer id, VoteRequest voteRequest) {
-        return null;
+    @PutMapping("users/{userId}/polls/{pollId}")
+    public Response vote(@RequestBody List<AnswerDto> answers,
+                         @PathVariable("userId") Integer userId,
+                         @PathVariable("pollId") Integer pollId) {
+        return pollService.vote(userId, pollId, answers);
     }
+
 
 
 }

@@ -1,7 +1,11 @@
 package com.example.pollprojectmain.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "spectators")
@@ -11,10 +15,6 @@ import lombok.*;
 @AllArgsConstructor
 @IdClass(SpectatorId.class)
 public class Spectator {
-
-//    @Id
-//    @GeneratedValue(strategy = GenerationType.IDENTITY)
-//    private Long id;
 
     @Id
     @ManyToOne(fetch = FetchType.EAGER, optional = false)

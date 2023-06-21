@@ -12,6 +12,7 @@ import org.hibernate.annotations.Type;
 import java.sql.Timestamp;
 import java.time.Duration;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -48,6 +49,7 @@ public class Poll {
     @OneToMany(mappedBy = "poll", cascade = CascadeType.ALL)
     private List<Question> questions = new ArrayList<>();
 
+    @JsonIgnore
     @OneToMany(mappedBy = "poll", cascade = CascadeType.ALL)
     private List<Spectator> spectators = new ArrayList<>();
 
@@ -65,5 +67,22 @@ public class Poll {
         this.createAt = createAt;
         this.questions = questions;
 
+    }
+
+    public Boolean isOver() {
+
+//        var currentDateTime = Timestamp.valueOf(LocalDateTime.now());
+//        var timeOfVoteEnding = Timestamp.from(getCreateAt().toInstant().plus(votingTime));
+//
+//        if ( votingTime == null) {
+//            return false;
+//        }
+//
+//        if (currentDateTime.before(timeOfVoteEnding)) {
+//            return false;
+//        }
+//
+//        return true;
+        return false;
     }
 }

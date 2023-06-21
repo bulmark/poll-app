@@ -1,6 +1,7 @@
 package com.example.pollprojectmain.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.Getter;
@@ -32,8 +33,14 @@ public class Answer {
     @JsonIgnore
     private List<Vote> votes = new ArrayList<>();
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @Transient
+    private Integer votesCount;
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @Transient
+    private Double percent;
+
     @Column(nullable = false)
     String text;
-
-
 }

@@ -27,5 +27,10 @@ public class QuestionDto {
 
     @NotNull
     private Boolean multiple;
+
+    @Size(
+            min = 2,
+            message = "A question cannot have zero or one answer"
+    )
     private List<AnswerDto> answers = new ArrayList<>();
 }
