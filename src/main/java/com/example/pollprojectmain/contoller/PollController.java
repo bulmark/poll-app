@@ -19,23 +19,16 @@ import java.util.List;
 public class PollController {
 
     private PollService pollService;
-    private UserRepository userRepository;
-
     @Autowired
-    public PollController(PollService pollService, UserRepository userRepository) {
+    public PollController(PollService pollService) {
         this.pollService = pollService;
-        this.userRepository = userRepository;
+
     }
     @GetMapping("/polls/{id}")
     public Poll getPoll(@PathVariable Integer id) {
         return pollService.getById(id);
     }
 
-
-    @GetMapping("/users")
-    public List<User> getUsers() {
-        return userRepository.findAll();
-    }
 
     @GetMapping("/users/{userId}/polls/available")
     public List<Poll> getAvailablePolls(@PathVariable Integer userId) {
