@@ -71,18 +71,17 @@ public class Poll {
 
     public Boolean isOver() {
 
-//        var currentDateTime = Timestamp.valueOf(LocalDateTime.now());
-//        var timeOfVoteEnding = Timestamp.from(getCreateAt().toInstant().plus(votingTime));
-//
-//        if ( votingTime == null) {
-//            return false;
-//        }
-//
-//        if (currentDateTime.before(timeOfVoteEnding)) {
-//            return false;
-//        }
-//
-//        return true;
-        return false;
+        if ( votingTime == null) {
+            return false;
+        }
+
+        var currentDateTime = Timestamp.valueOf(LocalDateTime.now());
+        var timeOfVoteEnding = Timestamp.from(getCreateAt().toInstant().plus(votingTime));
+
+        if (currentDateTime.before(timeOfVoteEnding)) {
+            return false;
+        }
+
+        return true;
     }
 }
