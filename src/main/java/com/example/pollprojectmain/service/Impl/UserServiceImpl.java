@@ -7,6 +7,7 @@ import com.example.pollprojectmain.pojo.Response;
 import com.example.pollprojectmain.pojo.dto.UserDto;
 import com.example.pollprojectmain.repository.UserRepository;
 import com.example.pollprojectmain.service.UserService;
+import com.example.pollprojectmain.util.MessageProvider;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -32,18 +33,18 @@ public class UserServiceImpl implements UserService {
         User user = userMapper.toModel(userDto);
 
         if (userRepository.existsByUsername(user.getUsername())) {
-            throw new BadArgumentException("User with username " + user.getUsername() + " already exists");
+            throw new BadArgumentException(MessageProvider.userExistsWithUsername(user.getUsername()));
         }
 
         if (userRepository.existsByUsername(user.getEmail())) {
-            throw new BadArgumentException("User with username " + user.getEmail() + " already exists");
+            throw new BadArgumentException(MessageProvider.userExistsWithEmail(user.getEmail()));
         }
 
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.save(user);
 
         return new Response(
-                "New user successfully created",
+                MessageProvider.createUserSuccess(),
                 LocalDateTime.now().toString()
         );
     }
@@ -51,11 +52,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public Response changePassword(Integer userId, UserDto userDto) {
         User user  = userRepository.findById(userId).orElseThrow(() ->
-                new EntityNotFoundException("No such user with " + userId + " id")
+                new EntityNotFoundException(MessageProvider.userNotFound(userId))
         );
         user.setPassword(passwordEncoder.encode(userDto.getPassword()));
         return new Response(
-                "User with id " + userId + " successfully updated his password",
+                MessageProvider.changePasswordSuccess(userId),
                 LocalDateTime.now().toString()
         );
     }
@@ -64,7 +65,7 @@ public class UserServiceImpl implements UserService {
     public Response update(Integer userId, UserDto userDto) {
 
         User user  = userRepository.findById(userId).orElseThrow(() ->
-                        new EntityNotFoundException("No such user with " + userId + " id")
+                        new EntityNotFoundException(MessageProvider.userNotFound(userId))
         );
 
         user.setEmail(userDto.getEmail());
@@ -72,7 +73,7 @@ public class UserServiceImpl implements UserService {
         user.setPassword(passwordEncoder.encode(userDto.getPassword()));
 
         return new Response(
-                "User with id " + userId + " successfully updated",
+                MessageProvider.updateUserSuccess(userId),
                 LocalDateTime.now().toString()
         );
     }

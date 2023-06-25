@@ -49,7 +49,7 @@ public class PollServiceImpl implements PollService {
     @Override
     public Poll getById(Integer id) {
         return pollRepository.findById(id).orElseThrow(() ->
-                new EntityNotFoundException(MessageProvider.userNotFound(id)
+                new EntityNotFoundException(MessageProvider.userNotFound(id))
         );
     }
     @Override

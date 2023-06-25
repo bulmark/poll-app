@@ -17,6 +17,18 @@ public class MessageProvider {
         return "New poll successfully created";
     }
 
+    public static  String createUserSuccess() {
+        return "New user successfully created";
+    }
+
+    public static  String changePasswordSuccess(Integer userId) {
+        return "User with id " + userId + " successfully updated his password";
+    }
+
+    public  static String updateUserSuccess(Integer userId) {
+        return "User with id " + userId + " successfully updated";
+    }
+
     public static  String pollIsOver(Integer pollId) {
         return "Poll with id " + pollId + " is over";
     }
@@ -42,5 +54,13 @@ public class MessageProvider {
     public static String incorrectListOfQuestionsAnswered() {
         return "Submitted a vote for a question from another poll, or not all questions were voted on";
     }
+
+    public static String userExistsWithEmail(String email) {
+        return "Submitted a vote for a question from another poll, or not all questions were voted on";
+    }
+    public static String userExistsWithUsername(String username) {
+        return "Submitted a vote for a question from another poll, or not all questions were voted on";
+    }
+
 
 }
