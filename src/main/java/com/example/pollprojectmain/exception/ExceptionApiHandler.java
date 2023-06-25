@@ -1,4 +1,4 @@
-package com.example.pollprojectmain.contoller;
+package com.example.pollprojectmain.exception;
 
 import com.example.pollprojectmain.exception.BadArgumentException;
 import jakarta.persistence.EntityNotFoundException;

@@ -9,10 +9,12 @@ import com.example.pollprojectmain.repository.UserRepository;
 import com.example.pollprojectmain.service.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Component
 public class UserServiceImpl implements UserService {
 
     private UserRepository userRepository;
