@@ -1,8 +1,11 @@
 package com.example.pollprojectmain.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.hypersistence.utils.hibernate.type.interval.PostgreSQLIntervalType;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Pattern;
 import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -36,11 +39,19 @@ public class Poll {
     @Column(nullable = false)
     private String text;
 
+    @Schema(
+            example = "P20D"
+    )
     @Type(PostgreSQLIntervalType.class)
-    @Column(columnDefinition = "interval")
     private Duration period;
+
+
+    @Schema(
+            example = "PT1H"
+    )
     @Column(name = "voting_time ")
     private Duration votingTime;
+
     @Column(name = "up_to_date")
     private Timestamp upToDate;
     @Column(name = "create_at", nullable = false)
@@ -69,6 +80,7 @@ public class Poll {
 
     }
 
+    @JsonIgnore
     public Boolean isOver() {
 
         if ( votingTime == null) {
@@ -83,5 +95,12 @@ public class Poll {
         }
 
         return true;
+    }
+    public void setCreateAt(Timestamp createAt) {
+        if (createAt == null) {
+            this.createAt = Timestamp.valueOf(LocalDateTime.now());
+            return;
+        }
+        this.createAt = createAt;
     }
 }

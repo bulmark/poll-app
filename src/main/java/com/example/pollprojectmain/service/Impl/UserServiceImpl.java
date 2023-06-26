@@ -3,6 +3,7 @@ package com.example.pollprojectmain.service.Impl;
 import com.example.pollprojectmain.exception.BadArgumentException;
 import com.example.pollprojectmain.mapper.UserMapper;
 import com.example.pollprojectmain.model.User;
+import com.example.pollprojectmain.pojo.PasswordPojo;
 import com.example.pollprojectmain.pojo.Response;
 import com.example.pollprojectmain.pojo.dto.UserDto;
 import com.example.pollprojectmain.repository.UserRepository;
@@ -50,11 +51,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Response changePassword(Integer userId, UserDto userDto) {
+    public Response changePassword(Integer userId, PasswordPojo passwordPojo) {
         User user  = userRepository.findById(userId).orElseThrow(() ->
                 new EntityNotFoundException(MessageProvider.userNotFound(userId))
         );
-        user.setPassword(passwordEncoder.encode(userDto.getPassword()));
+        user.setPassword(passwordEncoder.encode(passwordPojo.getPassword()));
         return new Response(
                 MessageProvider.changePasswordSuccess(userId),
                 LocalDateTime.now().toString()

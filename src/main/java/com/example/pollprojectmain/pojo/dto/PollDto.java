@@ -1,5 +1,6 @@
 package com.example.pollprojectmain.pojo.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotNull;
@@ -19,13 +20,17 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 public class PollDto {
+    @JsonIgnore
     private Integer id;
 
     @Nullable
     @JsonInclude(JsonInclude.Include.NON_NULL)
+    @JsonIgnore
     private Integer ownerId;
+    @JsonIgnore
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private String ownerUsername;
+    @JsonIgnore
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private UserDto owner;
 
@@ -39,14 +44,14 @@ public class PollDto {
 
     @Nullable
     @Pattern(
-            regexp = "^P(\\d+Y)?(\\d+M)?(\\d+D)?(T(\\d+H)?(\\d+M)?(\\d+S)?)?$",
+            regexp = "^P(?:\\d+D)",
             message = "The proper format of period is ISO-8610"
     )
     private String period;
 
     @Nullable
     @Pattern(
-            regexp = "^P(\\d+Y)?(\\d+M)?(\\d+D)?(T(\\d+H)?(\\d+M)?(\\d+S)?)?$",
+            regexp = "^P(?:\\d+D)?(?:T(?:\\d+H)?(?:\\d+M)?(?:\\d+S)?)?$",
             message = "The proper format of voting time is ISO-8610"
     )
     private String votingTime;

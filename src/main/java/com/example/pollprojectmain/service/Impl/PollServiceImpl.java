@@ -1,10 +1,12 @@
 package com.example.pollprojectmain.service.Impl;
 
+import com.example.pollprojectmain.exception.AccessException;
 import com.example.pollprojectmain.exception.BadArgumentException;
 import com.example.pollprojectmain.mapper.AnswerListMapper;
 import com.example.pollprojectmain.mapper.PollMapper;
 import com.example.pollprojectmain.model.*;
 import com.example.pollprojectmain.pojo.Response;
+import com.example.pollprojectmain.pojo.VoteRequest;
 import com.example.pollprojectmain.pojo.dto.AnswerDto;
 import com.example.pollprojectmain.pojo.dto.PollDto;
 import com.example.pollprojectmain.pojo.dto.UserDto;
@@ -17,6 +19,7 @@ import com.example.pollprojectmain.util.MessageProvider;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class PollServiceImpl implements PollService {
@@ -28,6 +31,7 @@ public class PollServiceImpl implements PollService {
     private PollMapper pollMapper;
     private AnswerListMapper answerListMapper;
     private VoteRepository voteRepository;
+    private AnswerRepository answerRepository;
 
     @Autowired
     public PollServiceImpl(PollRepository pollRepository,
@@ -36,7 +40,8 @@ public class PollServiceImpl implements PollService {
                            PollMapper pollMapper,
                            QuestionRepository questionRepository,
                            AnswerListMapper answerListMapper,
-                           VoteRepository voteRepository) {
+                           VoteRepository voteRepository,
+                           AnswerRepository answerRepository) {
         this.pollRepository = pollRepository;
         this.userRepository = userRepository;
         this.spectatorRepository = spectatorRepository;
@@ -44,6 +49,7 @@ public class PollServiceImpl implements PollService {
         this.questionRepository = questionRepository;
         this.answerListMapper = answerListMapper;
         this.voteRepository = voteRepository;
+        this.answerRepository = answerRepository;
     }
 
     @Override
@@ -68,7 +74,7 @@ public class PollServiceImpl implements PollService {
 
         return spectatorRepository.findSpectatorsByUser(user).stream()
                 .map(spectator -> spectator.getPoll())
-                .filter(poll -> poll.isOver())
+                .filter(poll -> !poll.isOver())
                 .toList();
     }
 
@@ -105,16 +111,21 @@ public class PollServiceImpl implements PollService {
 
 
     @Override
-    public Response create(PollDto pollDto) {
+    public Response create(Integer userId, PollDto pollDto) {
+        User user = userRepository.findById(userId).orElseThrow( () ->
+                new EntityNotFoundException(MessageProvider.userNotFound(userId))
+        );
 
         Poll poll = pollMapper.toModel(pollDto);
+        poll.setOwner(user);
         poll.getQuestions().forEach(question -> {
             question.setPoll(poll);
+
             question.getAnswers().forEach(answer -> answer.setQuestion(question));
         });
-        pollRepository.save(poll);
+        Integer pollId = pollRepository.save(poll).getId();
         return new Response(
-                MessageProvider.createPollSuccess(),
+                MessageProvider.createPollSuccess(pollId),
                 LocalDateTime.now().toString()
         );
     }
@@ -141,7 +152,7 @@ public class PollServiceImpl implements PollService {
         );
     }
     @Override
-    public Response vote(Integer userId, Integer pollId, List<AnswerDto> answersDto) {
+    public Response vote(Integer userId, Integer pollId, VoteRequest voteRequest) {
         Poll poll = pollRepository.findById(pollId).orElseThrow(
                 () -> new EntityNotFoundException(MessageProvider.pollNotFound(pollId))
         );
@@ -154,7 +165,11 @@ public class PollServiceImpl implements PollService {
                 new EntityNotFoundException(MessageProvider.userNotFound(userId))
         );
 
-        List<Answer> answers = answerListMapper.toModelList(answersDto);
+        if (spectatorRepository.findByUserAndPoll(user, poll).get() == null) {
+            new AccessException(MessageProvider.noAccessFor(userId, pollId));
+        }
+
+        List<Answer> answers = answerRepository.findByIdIn(voteRequest.getAnswersId());
 
         validateVoteRequest(poll, answers, user);
 
@@ -184,7 +199,9 @@ public class PollServiceImpl implements PollService {
             }
         }
 
-        List<Question> questions = poll.getQuestions();
+        Set<Integer> questions = poll.getQuestions().stream()
+                .map(question -> question.getId())
+                .collect(Collectors.toSet());
         if (!questions.equals(questionIdToAnswerIdMap.keySet())) {
             throw new BadArgumentException(MessageProvider.incorrectListOfQuestionsAnswered());
         }

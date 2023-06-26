@@ -1,6 +1,9 @@
 package com.example.pollprojectmain.util;
 
 public class MessageProvider {
+    public static String noAccessFor(Integer userId, Integer pollId) {
+        return "User with id " + userId + " doesnt have access to poll with id " + pollId;
+    }
     public static String userNotFound(Integer userId) {
         return "No such user with " + userId + " id";
     }
@@ -13,8 +16,8 @@ public class MessageProvider {
         return "New users added to vote";
     }
 
-    public static  String createPollSuccess() {
-        return "New poll successfully created";
+    public static  String createPollSuccess(Integer pollId) {
+        return "New poll successfully created with id " + pollId;
     }
 
     public static  String createUserSuccess() {

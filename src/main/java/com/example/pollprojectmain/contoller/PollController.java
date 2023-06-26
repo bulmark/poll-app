@@ -4,11 +4,15 @@ import com.example.pollprojectmain.model.Answer;
 import com.example.pollprojectmain.model.Poll;
 import com.example.pollprojectmain.model.User;
 import com.example.pollprojectmain.pojo.Response;
+import com.example.pollprojectmain.pojo.VoteRequest;
 import com.example.pollprojectmain.pojo.dto.AnswerDto;
 import com.example.pollprojectmain.pojo.dto.PollDto;
 import com.example.pollprojectmain.pojo.dto.UserDto;
 import com.example.pollprojectmain.repository.UserRepository;
 import com.example.pollprojectmain.service.PollService;
+import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -48,8 +52,7 @@ public class PollController {
 
     @PostMapping("/users/{userId}/polls")
     public Response createPoll(@RequestBody PollDto poll, @PathVariable Integer userId) {
-        poll.setOwnerId(userId);
-        return pollService.create(poll);
+        return pollService.create(userId, poll);
     }
 
     @PutMapping("/polls/{id}/spectators")
@@ -58,12 +61,10 @@ public class PollController {
     }
 
     @PutMapping("users/{userId}/polls/{pollId}")
-    public Response vote(@RequestBody List<AnswerDto> answers,
+    public Response vote(@RequestBody VoteRequest voteRequest,
                          @PathVariable("userId") Integer userId,
                          @PathVariable("pollId") Integer pollId) {
-        return pollService.vote(userId, pollId, answers);
+
+        return pollService.vote(userId, pollId, voteRequest);
     }
-
-
-
 }

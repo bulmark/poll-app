@@ -1,5 +1,6 @@
 package com.example.pollprojectmain.contoller;
 
+import com.example.pollprojectmain.pojo.PasswordPojo;
 import com.example.pollprojectmain.pojo.Response;
 import com.example.pollprojectmain.pojo.dto.UserDto;
 import com.example.pollprojectmain.service.UserService;
@@ -22,8 +23,8 @@ public class UserController {
     }
 
     @PutMapping("/users/{userId}/password")
-    public Response changePassword(@PathVariable Integer userId, @RequestBody UserDto userDto) {
-        return userService.changePassword(userId, userDto);
+    public Response changePassword(@PathVariable Integer userId, @RequestBody PasswordPojo passwordPojo) {
+        return userService.changePassword(userId, passwordPojo);
     }
 
     @PostMapping("/users")

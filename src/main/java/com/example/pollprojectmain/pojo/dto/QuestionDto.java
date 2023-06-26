@@ -1,5 +1,6 @@
 package com.example.pollprojectmain.pojo.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -15,6 +16,7 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 public class QuestionDto {
+    @JsonIgnore
     private Integer id;
 
     @Size(

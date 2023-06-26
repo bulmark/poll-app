@@ -1,5 +1,6 @@
 package com.example.pollprojectmain.pojo.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -13,6 +14,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class AnswerDto {
+    @JsonIgnore
     private Integer id;
 
     @Size(
@@ -23,9 +25,11 @@ public class AnswerDto {
     @NotNull
     private String text;
 
+    @JsonIgnore
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private Integer votesCount;
 
+    @JsonIgnore
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private Double percent;
 }
