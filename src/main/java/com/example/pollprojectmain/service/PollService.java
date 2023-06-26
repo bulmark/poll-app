@@ -18,5 +18,6 @@ public interface PollService {
     public Response allowToVote(Integer pollId, List<UserDto> users);
     public Response allowToGetResult(Integer pollId, List<UserDto> users);
     public Response vote(Integer userId, Integer pollId, VoteRequest voteRequest);
+    public void repeatPolls();
 
 }

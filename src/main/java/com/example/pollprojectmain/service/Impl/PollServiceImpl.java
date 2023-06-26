@@ -12,8 +12,10 @@ import com.example.pollprojectmain.pojo.dto.PollDto;
 import com.example.pollprojectmain.pojo.dto.UserDto;
 import com.example.pollprojectmain.repository.*;
 import com.example.pollprojectmain.service.PollService;
+import com.example.pollprojectmain.service.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import com.example.pollprojectmain.util.MessageProvider;
 
@@ -26,12 +28,12 @@ public class PollServiceImpl implements PollService {
 
     private PollRepository pollRepository;
     private QuestionRepository questionRepository;
-    private UserRepository userRepository;
     private SpectatorRepository spectatorRepository;
     private PollMapper pollMapper;
     private AnswerListMapper answerListMapper;
     private VoteRepository voteRepository;
     private AnswerRepository answerRepository;
+    private UserService userService;
 
     @Autowired
     public PollServiceImpl(PollRepository pollRepository,
@@ -41,9 +43,10 @@ public class PollServiceImpl implements PollService {
                            QuestionRepository questionRepository,
                            AnswerListMapper answerListMapper,
                            VoteRepository voteRepository,
-                           AnswerRepository answerRepository) {
+                           AnswerRepository answerRepository,
+                           UserService userService) {
         this.pollRepository = pollRepository;
-        this.userRepository = userRepository;
+        this.userService = userService;
         this.spectatorRepository = spectatorRepository;
         this.pollMapper = pollMapper;
         this.questionRepository = questionRepository;
@@ -60,17 +63,12 @@ public class PollServiceImpl implements PollService {
     }
     @Override
     public List<Poll> getByOwner(Integer ownerId) {
-        User user = userRepository.findById(ownerId).orElseThrow( () ->
-            new EntityNotFoundException(MessageProvider.userNotFound(ownerId))
-        );
-
+        User user = userService.findById(ownerId);
         return pollRepository.findPollsByOwner(user);
     }
     @Override
     public List<Poll> getAvailableFor(Integer userId) {
-        User user = userRepository.findById(userId).orElseThrow( () ->
-                new EntityNotFoundException(MessageProvider.userNotFound(userId))
-        );
+        User user = userService.findById(userId);
 
         return spectatorRepository.findSpectatorsByUser(user).stream()
                 .map(spectator -> spectator.getPoll())
@@ -112,9 +110,7 @@ public class PollServiceImpl implements PollService {
 
     @Override
     public Response create(Integer userId, PollDto pollDto) {
-        User user = userRepository.findById(userId).orElseThrow( () ->
-                new EntityNotFoundException(MessageProvider.userNotFound(userId))
-        );
+        User user = userService.findById(userId);
 
         Poll poll = pollMapper.toModel(pollDto);
         poll.setOwner(user);
@@ -138,9 +134,7 @@ public class PollServiceImpl implements PollService {
 
 
         for (var userDto : usersDto) {
-            User user = userRepository.findById(userDto.getId()).orElseThrow(() ->
-                    new EntityNotFoundException(MessageProvider.userNotFound(userDto.getId()))
-            );
+            User user = userService.findById(userDto.getId());
             poll.getSpectators().add(new Spectator(poll, user));
         }
 
@@ -161,9 +155,7 @@ public class PollServiceImpl implements PollService {
             throw new BadArgumentException(MessageProvider.pollIsOver(pollId));
         }
 
-        User user = userRepository.findById(userId).orElseThrow(() ->
-                new EntityNotFoundException(MessageProvider.userNotFound(userId))
-        );
+        User user = userService.findById(userId);
 
         if (spectatorRepository.findByUserAndPoll(user, poll).get() == null) {
             new AccessException(MessageProvider.noAccessFor(userId, pollId));
@@ -228,9 +220,21 @@ public class PollServiceImpl implements PollService {
         }
 
     }
+
+
     @Override
     public Response allowToGetResult(Integer pollId, List<UserDto> users) {
         return null;
     }
 
+    @Override
+    @Scheduled(cron = "0 0 * * * ?")
+    public void repeatPolls(){
+            List<Poll> polls = pollRepository.findAll();
+            for (Poll poll : polls) {
+                if (poll.isReadyToRepeat()) {
+                    pollRepository.save(new Poll(poll));
+                }
+            }
+    }
 }

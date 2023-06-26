@@ -2,6 +2,7 @@ package com.example.pollprojectmain.pojo.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -27,6 +28,9 @@ public class UserDto {
     @Pattern(
             regexp = "^[a-zA-Z0-9.!#$%&’*+/=?^_{|}~-]+@[a-zA-Z0-9-]+(?:.[a-zA-Z0-9-]+)*$",
             message = "Incorrect email format"
+    )
+    @Schema(
+            example = "bebra@bebra.com"
     )
     private String email;
 

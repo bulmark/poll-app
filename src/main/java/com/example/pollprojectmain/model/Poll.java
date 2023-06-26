@@ -1,12 +1,9 @@
 package com.example.pollprojectmain.model;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.hypersistence.utils.hibernate.type.interval.PostgreSQLIntervalType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Pattern;
-import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -17,9 +14,7 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @Entity
 @Table(name = "polls")
@@ -80,10 +75,36 @@ public class Poll {
 
     }
 
+    public Poll(Poll poll) {
+        this.setOwner(poll.getOwner());
+        this.setText(poll.getText());
+        this.setPeriod(poll.getPeriod());
+        this.setUpToDate(poll.getUpToDate());
+
+        this.setSpectators(poll.getSpectators());
+        for(Spectator spectator : spectators) {
+            spectator.setPoll(this);
+        }
+
+        this.setQuestions(poll.getQuestions());
+        for(Question question : questions) {
+            question.setId(null);
+            question.setPoll(this);
+            for (Answer answer : question.getAnswers()) {
+                answer.setId(null);
+            }
+        }
+
+
+
+        nowCreateAt();
+
+    }
+
     @JsonIgnore
     public Boolean isOver() {
 
-        if ( votingTime == null) {
+        if (votingTime == null) {
             return false;
         }
 
@@ -96,11 +117,49 @@ public class Poll {
 
         return true;
     }
+
+    @JsonIgnore
+    public Boolean isReadyToRepeat() {
+        if (isOutDated()) {
+            return false;
+        }
+
+        if (period == null) {
+            return false;
+        }
+
+        LocalDate now = LocalDate.now();
+        LocalDate theDateOfRespawn = Timestamp.from(getCreateAt().toInstant().plus(votingTime)).toLocalDateTime().toLocalDate();
+
+        if (now.compareTo(theDateOfRespawn) != 0) {
+            return false;
+        }
+
+        return true;
+    }
+
+    private boolean isOutDated() {
+        if (upToDate == null) {
+            return false;
+        }
+
+        LocalDate now = LocalDate.now();
+        LocalDate upToDate = this.getUpToDate().toLocalDateTime().toLocalDate();
+
+        if (now.compareTo(upToDate) <= 0) {
+            return false;
+        }
+        return true;
+    }
     public void setCreateAt(Timestamp createAt) {
         if (createAt == null) {
-            this.createAt = Timestamp.valueOf(LocalDateTime.now());
+            nowCreateAt();
             return;
         }
         this.createAt = createAt;
+    }
+
+    private void nowCreateAt() {
+        this.createAt = Timestamp.valueOf(LocalDateTime.now());
     }
 }
