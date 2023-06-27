@@ -35,9 +35,10 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    @OneToMany(mappedBy = "owner", orphanRemoval = true, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "owner", orphanRemoval = true, fetch = FetchType.EAGER)
     @JsonIgnore
     private Set<Poll> polls = new HashSet<>();
+
 
     public User(String username, String password, String email, Role role) {
         this.username = username;

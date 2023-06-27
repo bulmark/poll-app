@@ -18,7 +18,7 @@ public class Spectator {
 
     @Id
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "user_id")
     private User user;
 
     @Id
@@ -32,5 +32,18 @@ public class Spectator {
     public Spectator(Poll poll, User user) {
         this.poll = poll;
         this.user = user;
+    }
+
+    public Spectator produceCopyTo(Poll poll) {
+        Spectator copySpectator = new Spectator();
+
+        User user = new User();
+        user.setId(this.getUser().getId());
+
+        copySpectator.setPoll(poll);
+        copySpectator.setUser(this.getUser());
+        copySpectator.setCanReadResults(this.getCanReadResults());
+
+        return copySpectator;
     }
 }

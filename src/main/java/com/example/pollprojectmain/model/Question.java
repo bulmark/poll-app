@@ -22,12 +22,12 @@ public class Question {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "poll_id", nullable = false)
     @JsonIgnore
     private Poll poll;
 
-    @OneToMany(mappedBy = "question", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "question", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<Answer> answers = new ArrayList<>();
 
     @Column(nullable = false)
@@ -42,5 +42,18 @@ public class Question {
         this.answers = answers;
         this.multiple = multiple;
         this.text = text;
+    }
+
+    public Question produceCopyTo(Poll poll) {
+        Question copyQuestion = new Question();
+        copyQuestion.setPoll(poll);
+        copyQuestion.setText(this.getText());
+        copyQuestion.setMultiple(this.getMultiple());
+
+        for (Answer answer : this.getAnswers()) {
+            copyQuestion.getAnswers().add(answer.produceCopyTo(copyQuestion));
+        }
+
+        return copyQuestion;
     }
 }

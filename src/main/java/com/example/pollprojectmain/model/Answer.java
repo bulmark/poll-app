@@ -26,7 +26,7 @@ public class Answer {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "question_id", nullable = false)
     @JsonIgnore
     private Question question;
@@ -47,4 +47,11 @@ public class Answer {
 
     @Column(nullable = false)
     String text;
+
+    public Answer produceCopyTo(Question question) {
+        Answer copyAnswer = new Answer();
+        copyAnswer.setQuestion(question);
+        copyAnswer.setText(this.getText());
+        return copyAnswer;
+    }
 }

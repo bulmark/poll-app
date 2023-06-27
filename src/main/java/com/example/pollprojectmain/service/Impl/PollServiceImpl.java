@@ -7,7 +7,6 @@ import com.example.pollprojectmain.mapper.PollMapper;
 import com.example.pollprojectmain.model.*;
 import com.example.pollprojectmain.pojo.Response;
 import com.example.pollprojectmain.pojo.VoteRequest;
-import com.example.pollprojectmain.pojo.dto.AnswerDto;
 import com.example.pollprojectmain.pojo.dto.PollDto;
 import com.example.pollprojectmain.pojo.dto.UserDto;
 import com.example.pollprojectmain.repository.*;
@@ -228,12 +227,16 @@ public class PollServiceImpl implements PollService {
     }
 
     @Override
-    @Scheduled(cron = "0 0 * * * ?")
+//    @Scheduled(cron = "0 0 * * * ?")
+    @Scheduled(fixedRate = 10000)
     public void repeatPolls(){
             List<Poll> polls = pollRepository.findAll();
             for (Poll poll : polls) {
-                if (poll.isReadyToRepeat()) {
-                    pollRepository.save(new Poll(poll));
+                if (!poll.isReadyToRepeat()) {
+                    poll.setRepeated(true);
+                    Poll copyPoll = poll.produceCopy();
+                    pollRepository.saveAllAndFlush(List.of(poll, copyPoll ));
+                    spectatorRepository.saveAll(poll.produceSpectatorCopyTo(copyPoll));
                 }
             }
     }

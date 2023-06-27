@@ -26,7 +26,7 @@ public class Poll {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "owner_id", nullable = false)
     @JsonIgnore
     private User owner;
@@ -52,12 +52,14 @@ public class Poll {
     @Column(name = "create_at", nullable = false)
     private Timestamp createAt;
 
-    @OneToMany(mappedBy = "poll", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "poll", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<Question> questions = new ArrayList<>();
 
     @JsonIgnore
-    @OneToMany(mappedBy = "poll", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "poll", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<Spectator> spectators = new ArrayList<>();
+
+    private Boolean repeated;
 
     public Poll(User owner,
                 String text,
@@ -72,32 +74,6 @@ public class Poll {
         this.upToDate = upToDate;
         this.createAt = createAt;
         this.questions = questions;
-
-    }
-
-    public Poll(Poll poll) {
-        this.setOwner(poll.getOwner());
-        this.setText(poll.getText());
-        this.setPeriod(poll.getPeriod());
-        this.setUpToDate(poll.getUpToDate());
-
-        this.setSpectators(poll.getSpectators());
-        for(Spectator spectator : spectators) {
-            spectator.setPoll(this);
-        }
-
-        this.setQuestions(poll.getQuestions());
-        for(Question question : questions) {
-            question.setId(null);
-            question.setPoll(this);
-            for (Answer answer : question.getAnswers()) {
-                answer.setId(null);
-            }
-        }
-
-
-
-        nowCreateAt();
 
     }
 
@@ -120,16 +96,12 @@ public class Poll {
 
     @JsonIgnore
     public Boolean isReadyToRepeat() {
-        if (isOutDated()) {
-            return false;
-        }
-
-        if (period == null) {
+        if (isOutDated() || period == null) {
             return false;
         }
 
         LocalDate now = LocalDate.now();
-        LocalDate theDateOfRespawn = Timestamp.from(getCreateAt().toInstant().plus(votingTime)).toLocalDateTime().toLocalDate();
+        LocalDate theDateOfRespawn = Timestamp.from(getCreateAt().toInstant().plus(period)).toLocalDateTime().toLocalDate();
 
         if (now.compareTo(theDateOfRespawn) != 0) {
             return false;
@@ -153,13 +125,51 @@ public class Poll {
     }
     public void setCreateAt(Timestamp createAt) {
         if (createAt == null) {
-            nowCreateAt();
+            setCurrentTimeToCreateAt();
             return;
         }
         this.createAt = createAt;
     }
 
-    private void nowCreateAt() {
+    public void setRepeated(Boolean repeated) {
+        if (repeated == null) {
+            repeated = false;
+            return;
+        }
+        this.repeated = repeated;
+    }
+
+    private void setCurrentTimeToCreateAt() {
         this.createAt = Timestamp.valueOf(LocalDateTime.now());
+    }
+
+    public Poll produceCopy() {
+        Poll copyPoll = new Poll();
+
+        copyPoll.setOwner(this.getOwner());
+        copyPoll.setText(this.getText());
+        copyPoll.setPeriod(this.getPeriod());
+        copyPoll.setUpToDate(this.getUpToDate());
+
+//        for (Spectator spectator : this.getSpectators()) {
+//            copyPoll.getSpectators().add(spectator.produceCopyTo(copyPoll));
+//        }
+
+        for (Question question : this.getQuestions()) {
+            copyPoll.getQuestions().add(question.produceCopyTo(copyPoll));
+        }
+
+        copyPoll.setCurrentTimeToCreateAt();
+        copyPoll.setRepeated(false);
+
+        return copyPoll;
+    }
+
+    public List<Spectator> produceSpectatorCopyTo(Poll poll) {
+        List<Spectator> copySpectators = new ArrayList<>();
+        for (Spectator spectator : this.getSpectators()) {
+            copySpectators.add(new Spectator(poll, spectator.getUser()));
+        }
+        return copySpectators;
     }
 }
