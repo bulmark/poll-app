@@ -5,3 +5,7 @@ spring:
     url: jdbc:postgresql://localhost:5432/poll_bd
     driver-class-name: org.postgresql.Driver
 
+app:
+  jwtSecret: my-32-character-ultra-secure-and-ultra-long-secret
+  jwtExpirationMs: 86400000
+

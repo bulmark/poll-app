@@ -1,4 +1,6 @@
-package com.example.demoauth.service;
+package com.example.pollprojectmain.service.Impl;
+
+
 
 import com.example.pollprojectmain.model.User;
 import com.example.pollprojectmain.repository.UserRepository;
@@ -22,7 +24,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User Not Found with username: " + username));
-        return com.example.demoauth.service.UserDetailsImpl.build(user);
+        return UserDetailsImpl.build(user);
     }
 
 }
