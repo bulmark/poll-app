@@ -32,11 +32,13 @@ public class UserController {
     }
 
     @PutMapping("/admin/users/{userId}")
+    @PreAuthorize("hasRole('ADMIN')")
     public Response updateUser(@PathVariable Integer userId, @RequestBody UserDto userDto) {
         return userService.update(userId, userDto);
     }
 
     @PutMapping("/users/{userId}/password")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('USER') or hasRole('MODER')")
     public Response changePassword(@PathVariable Integer userId, @RequestBody ChangePasswordRequest passwordPojo) {
         return userService.changePassword(userId, passwordPojo);
     }
