@@ -11,6 +11,7 @@ import com.example.pollprojectmain.pojo.dto.UserDto;
 import com.example.pollprojectmain.repository.UserRepository;
 import com.example.pollprojectmain.service.Impl.UserDetailsImpl;
 import com.example.pollprojectmain.service.PollService;
+import com.example.pollprojectmain.util.SecurityUtils;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -46,16 +47,16 @@ public class PollController {
     @PreAuthorize("hasRole('ADMIN') or hasRole('USER') or hasRole('MODERATOR')")
     @SecurityRequirement(name = "JWT")
     public Page<Poll> getAvailablePolls(@RequestParam Integer page, @RequestParam Integer limit) {
-        UserDetailsImpl userDetails = (UserDetailsImpl)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return pollService.getAvailableFor(userDetails.getId(), page, limit);
+        Integer userId = SecurityUtils.getCurrentUserDetails().getId();
+        return pollService.getAvailableFor(userId, page, limit);
     }
 
     @GetMapping("/polls/created")
     @PreAuthorize("hasRole('MODERATOR')")
     @SecurityRequirement(name = "JWT")
     public Page<Poll> getCreatedPolls(@RequestParam Integer page, @RequestParam Integer limit) {
-        UserDetailsImpl userDetails = (UserDetailsImpl)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return pollService.getByOwner(userDetails.getId(), page, limit);
+        Integer userId = SecurityUtils.getCurrentUserDetails().getId();
+        return pollService.getByOwner(userId, page, limit);
     }
 
 
@@ -70,8 +71,8 @@ public class PollController {
     @PreAuthorize("hasRole('MODERATOR')")
     @SecurityRequirement(name = "JWT")
     public Response createPoll(@RequestBody PollDto poll) {
-        UserDetailsImpl userDetails = (UserDetailsImpl)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return pollService.create(userDetails.getId(), poll);
+        Integer userId = SecurityUtils.getCurrentUserDetails().getId();
+        return pollService.create(userId, poll);
     }
 
     @PutMapping("/polls/{id}/spectators")
@@ -86,8 +87,7 @@ public class PollController {
     @SecurityRequirement(name = "JWT")
     public Response vote(@RequestBody VoteRequest voteRequest,
                          @PathVariable("pollId") Integer pollId) {
-
-        UserDetailsImpl userDetails = (UserDetailsImpl)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return pollService.vote(userDetails.getId(), pollId, voteRequest);
+        Integer userId = SecurityUtils.getCurrentUserDetails().getId();
+        return pollService.vote(userId, pollId, voteRequest);
     }
 }
