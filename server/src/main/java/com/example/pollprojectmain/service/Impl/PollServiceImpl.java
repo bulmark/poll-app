@@ -14,10 +14,14 @@ import com.example.pollprojectmain.service.PollService;
 import com.example.pollprojectmain.service.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import com.example.pollprojectmain.util.MessageProvider;
 
+import java.awt.print.Pageable;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -69,10 +73,29 @@ public class PollServiceImpl implements PollService {
     public List<Poll> getAvailableFor(Integer userId) {
         User user = userService.findById(userId);
 
+
         return spectatorRepository.findSpectatorsByUser(user).stream()
                 .map(spectator -> spectator.getPoll())
                 .filter(poll -> !poll.isOver())
                 .toList();
+    }
+
+    @Override
+    public Page<Poll> getByOwner(Integer ownerId, Integer page, Integer limit) {
+        User user = userService.findById(ownerId);
+        return pollRepository.findPollsByOwner(user, PageRequest.of(page, limit));
+    }
+
+    @Override
+    public Page<Poll> getAvailableFor(Integer userId, Integer page, Integer limit) {
+        User user = userService.findById(userId);
+        List<Poll> availablePollsList = spectatorRepository.findSpectatorsByUser(user).stream()
+                .map(spectator -> spectator.getPoll())
+                .filter(poll -> !poll.isOver())
+                .toList();
+
+        PageRequest pageRequest = PageRequest.of(page, limit);
+        return new PageImpl<>(availablePollsList, pageRequest, availablePollsList.size());
     }
 
     @Override
@@ -227,8 +250,7 @@ public class PollServiceImpl implements PollService {
     }
 
     @Override
-//    @Scheduled(cron = "0 0 * * * ?")
-    @Scheduled(fixedRate = 10000)
+    @Scheduled(cron = "0 0 * * * ?")
     public void repeatPolls(){
             List<Poll> polls = pollRepository.findAll();
             for (Poll poll : polls) {

@@ -10,6 +10,8 @@ import com.example.pollprojectmain.repository.UserRepository;
 import com.example.pollprojectmain.service.UserService;
 import com.example.pollprojectmain.util.MessageProvider;
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
@@ -90,5 +92,10 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<User> getAll() {
         return null;
+    }
+
+    @Override
+    public Page<User> getAll(Integer page, Integer limit) {
+        return userRepository.findAll(PageRequest.of(page, limit));
     }
 }

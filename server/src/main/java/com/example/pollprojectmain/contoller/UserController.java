@@ -9,6 +9,7 @@ import com.example.pollprojectmain.pojo.Response;
 import com.example.pollprojectmain.pojo.dto.UserDto;
 import com.example.pollprojectmain.service.Impl.UserDetailsImpl;
 import com.example.pollprojectmain.service.UserService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -33,14 +34,17 @@ public class UserController {
 
     @PutMapping("/admin/users/{userId}")
     @PreAuthorize("hasRole('ADMIN')")
+    @SecurityRequirement(name = "JWT")
     public Response updateUser(@PathVariable Integer userId, @RequestBody UserDto userDto) {
         return userService.update(userId, userDto);
     }
 
-    @PutMapping("/users/{userId}/password")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('USER') or hasRole('MODER')")
-    public Response changePassword(@PathVariable Integer userId, @RequestBody ChangePasswordRequest passwordPojo) {
-        return userService.changePassword(userId, passwordPojo);
+    @PutMapping("/users/password")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('USER') or hasRole('MODERATOR')")
+    @SecurityRequirement(name = "JWT")
+    public Response changePassword(@RequestBody ChangePasswordRequest passwordPojo) {
+        UserDetailsImpl userDetails = (UserDetailsImpl)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return userService.changePassword(userDetails.getId(), passwordPojo);
     }
 
     @PostMapping("/signin")
@@ -75,7 +79,8 @@ public class UserController {
 
     @GetMapping("/users/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public User findAll(@PathVariable Integer id) {
+    @SecurityRequirement(name = "JWT")
+    public User findUser(@PathVariable Integer id) {
         return userService.findById(id);
     }
 
