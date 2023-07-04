@@ -19,6 +19,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
+@CrossOrigin(allowedHeaders = { "*" })
 @RequestMapping("")
 public class UserController {
     private UserService userService;

@@ -26,6 +26,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+
+@CrossOrigin(allowedHeaders = { "*" })
 @RequestMapping("")
 public class PollController {
 
@@ -35,6 +37,8 @@ public class PollController {
         this.pollService = pollService;
 
     }
+
+    @CrossOrigin(allowedHeaders = { "Authorization" })
     @GetMapping("/polls/{id}")
     @PreAuthorize("hasRole('ADMIN') or hasRole('USER') or hasRole('MODERATOR')")
     @SecurityRequirement(name = "JWT")

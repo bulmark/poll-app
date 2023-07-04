@@ -20,6 +20,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.Arrays;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
@@ -49,9 +54,12 @@ public class SecurityConfiguration {
                 .authorizeHttpRequests((auth) -> auth
                         .requestMatchers("/signin").permitAll()
                         .requestMatchers("/signup").permitAll()
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/swagger-ui.html", "/swagger-ui/**","/v3/api-docs/**").permitAll()
                         .anyRequest().authenticated()
                 )
+//                .cors(httpSecurityCorsConfigurer -> httpSecurityCorsConfigurer
+//                        .configurationSource(corsConfigurationSource()))
                 .csrf(httpSecurityCsrfConfigurer -> httpSecurityCsrfConfigurer
                         .disable())
                 .exceptionHandling(exceptionHandler -> exceptionHandler
@@ -64,12 +72,16 @@ public class SecurityConfiguration {
         return http.build();
     }
 
-//    @Bean
-//    public DefaultWebSecurityExpressionHandler expressionHandler() {
-//        DefaultWebSecurityExpressionHandler expressionHandler = new DefaultWebSecurityExpressionHandler();
-//        expressionHandler.setDefaultRolePrefix(""); // Устанавливаем пустой префикс ролей
-//        return expressionHandler;
-//    }
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration corsConfiguration = new CorsConfiguration();
+        corsConfiguration.setAllowedOrigins(Arrays.asList("https://127.0.0.1:3000"));
+        corsConfiguration.setAllowedMethods(Arrays.asList("GET", "PUT", "POST"));
+        corsConfiguration.setAllowedHeaders(Arrays.asList("Authorization"));
+        UrlBasedCorsConfigurationSource source =  new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", corsConfiguration);
+        return  source;
+    }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
