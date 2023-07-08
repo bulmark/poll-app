@@ -2,9 +2,12 @@ package com.example.pollprojectmain.service.Impl;
 
 import com.example.pollprojectmain.exception.BadArgumentException;
 import com.example.pollprojectmain.mapper.UserMapper;
+import com.example.pollprojectmain.model.Role;
 import com.example.pollprojectmain.model.User;
 import com.example.pollprojectmain.pojo.ChangePasswordRequest;
 import com.example.pollprojectmain.pojo.Response;
+import com.example.pollprojectmain.pojo.SignUpRequest;
+import com.example.pollprojectmain.pojo.UpdateUserRequest;
 import com.example.pollprojectmain.pojo.dto.UserDto;
 import com.example.pollprojectmain.repository.UserRepository;
 import com.example.pollprojectmain.service.UserService;
@@ -32,22 +35,28 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Response create(UserDto userDto) {
-        User user = userMapper.toModel(userDto);
+    public Response create(SignUpRequest signUpRequest) {
 
-        if (userRepository.existsByUsername(user.getUsername())) {
-            throw new BadArgumentException(MessageProvider.userExistsWithUsername(user.getUsername()));
+        if (userRepository.existsByUsername(signUpRequest.getUsername())) {
+            throw new BadArgumentException(MessageProvider.userExistsWithUsername(signUpRequest.getUsername()));
         }
 
-        if (userRepository.existsByUsername(user.getEmail())) {
-            throw new BadArgumentException(MessageProvider.userExistsWithEmail(user.getEmail()));
+        if (userRepository.existsByEmail(signUpRequest.getEmail())) {
+            throw new BadArgumentException(MessageProvider.userExistsWithEmail(signUpRequest.getEmail()));
         }
 
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
+//        user.setPassword(passwordEncoder.encode(signUpRequest.getPassword()));
+        User user = new User();
+        user.setRole(Role.USER);
+        user.setPassword(signUpRequest.getPassword());
+        user.setEmail(signUpRequest.getEmail());
+        user.setUsername(signUpRequest.getUsername());
+
         userRepository.save(user);
+        User tmp = userRepository.findByUsername(user.getUsername()).get();
 
         return new Response(
-                MessageProvider.createUserSuccess(),
+                MessageProvider.createUserSuccess(tmp.getId()),
                 LocalDateTime.now().toString()
         );
     }
@@ -57,6 +66,13 @@ public class UserServiceImpl implements UserService {
         User user  = userRepository.findById(userId).orElseThrow(() ->
                 new EntityNotFoundException(MessageProvider.userNotFound(userId))
         );
+
+        String newPassword = passwordPojo.getPassword();
+
+        if (newPassword != null && newPassword.equals(user.getPassword())) {
+            user.setPassword(newPassword);
+        }
+
         user.setPassword(passwordEncoder.encode(passwordPojo.getPassword()));
         return new Response(
                 MessageProvider.changePasswordSuccess(userId),
@@ -65,15 +81,34 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Response update(Integer userId, UserDto userDto) {
+    public Response update(Integer userId, UpdateUserRequest updateUserRequest) {
 
         User user  = userRepository.findById(userId).orElseThrow(() ->
                         new EntityNotFoundException(MessageProvider.userNotFound(userId))
         );
 
-        user.setEmail(userDto.getEmail());
-        user.setUsername(userDto.getUsername());
-        user.setPassword(passwordEncoder.encode(userDto.getPassword()));
+        String newEmail =  updateUserRequest.getEmail();
+        String newUsername = updateUserRequest.getUsername();
+        String newPassword = updateUserRequest.getPassword();
+        Role newRole = updateUserRequest.getRole();
+
+        if (newEmail != null && !newEmail.equals(user.getEmail())) {
+            user.setEmail(newEmail);
+        }
+
+        if (newUsername != null && !newUsername.equals(user.getEmail())) {
+            user.setUsername(newUsername);
+        }
+
+        if (newPassword != null && !newPassword.equals(user.getPassword())) {
+            user.setPassword(newEmail);
+        }
+
+        if (newRole != null && !newRole.equals(user.getRole())) {
+            user.setRole(newRole);
+        }
+
+        userRepository.save(user);
 
         return new Response(
                 MessageProvider.updateUserSuccess(userId),

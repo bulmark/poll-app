@@ -18,7 +18,7 @@ public interface PollService {
     public Page<Poll> getByOwner(Integer ownerId,Integer page, Integer limit);
     public Page<Poll> getAvailableFor(Integer userId, Integer page, Integer limit);
     public Response create(Integer userId, PollDto poll);
-    public Response allowToVote(Integer pollId, List<UserDto> users);
+    public Response allowToVote(Integer pollId, Integer idOfRequester, List<UserDto> users);
     public Response allowToGetResult(Integer pollId, List<UserDto> users);
     public Response vote(Integer userId, Integer pollId, VoteRequest voteRequest);
     public void repeatPolls();

@@ -1,0 +1,17 @@
+.logo {
+    background-image: url("../../assets/logo2.svg");
+    background-repeat: no-repeat;
+    background-size: contain;
+    width: 200px;
+    height: 55px;
+    padding-left: 10px;
+    cursor: pointer;
+}
+
+.sider-menu {
+    margin-top: 30px;
+    position: fixed;
+    width: 200px;
+    height: 100%;
+}
+

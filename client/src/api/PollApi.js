@@ -1,19 +1,49 @@
 import { api } from "./config/axiosConfig";
-import { defineCancelApiObject } from "./config/axiosUtils";
 
-export const PollApi = {
-    token: null,
+const PollApi = {
+  get: async function (id) {
+    const response = await api.request({
+      url: `/polls/${id}`,
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    });
 
-  get: async function (id, cancel = false) {
-      const response = await api.request({
-          url: `/polls/:id`,
-          method: "GET",
-          headers: {
-              Authorization: `Bearer ${token}`
-          }
-      });
+    return response.data;
+  },
 
-      return response.dataz
-      )
+  getAvailable: async function (page, limit) {
+    const response = await api.request({
+      url: `/polls/available`,
+      method: "GET",
+      params: {
+        page: page,
+        limit,
+      },
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    });
+
+    return response.data;
+  },
+
+  getCreated: async function (page, limit) {
+    const response = await api.request({
+      url: `/polls/created`,
+      method: "GET",
+      params: {
+        page: page,
+        limit,
+      },
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    });
+
+    return response.data;
   },
 };
+
+export default PollApi;

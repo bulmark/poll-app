@@ -1,0 +1,101 @@
+.send-button-container {
+    padding: 10px 0;
+    display: flex;
+    justifyContent: left;
+    alignItems: center;
+}
+
+.poll-constructor {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin: -10px 0px;
+    max-width: 900px;
+}
+
+.title-input {
+    border-top: 14px solid cornflowerblue;
+    border-radius: 8px;
+    font-size: 24px;
+}
+
+.question-input {
+    border-top: 8px solid lightskyblue;
+    border-radius: 0px;
+    font-size: 16px;
+}
+
+.answer-input {
+    margin: 0 3px;
+}
+
+
+.icon-button-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.icon-button {
+    background: none;
+    border: none;
+    padding: 0;
+    margin-left: 6px;
+    outline: none;
+    cursor: pointer;
+}
+
+.poll-container {
+    display: flex;
+    align-items: center;
+    margin: 10px 0;
+}
+
+.question-container {
+    display: flex;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.answers-container {
+    margin-top: -5px;
+    display: flex;
+    flex-direction: column;
+}
+
+.answer-container {
+    display: flex;
+}
+
+.answer-input {
+    display: flex;
+    flex-grow: 1;
+    background-color: white;
+    margin: 0px;
+    padding: 10px 0;
+}
+
+.white-background {
+    background-color: white;
+}
+
+.multiple-checkbox {
+    background-color: white;
+    max-width: 878px;
+    padding: 10px 4px;
+}
+
+.time-picker-container {
+    padding: 30px 0 10px 0;
+}
+
+.period-container {
+    display: flex;
+    flex-direction: column;
+    padding: 10px 0;
+}
+
+.create-button {
+    position: relative;
+    min-height: 30px;
+    max-width: 70px;
+}

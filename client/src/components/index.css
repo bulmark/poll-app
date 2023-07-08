@@ -1,0 +1,26 @@
+
+
+h1 {
+    align-self: center;
+}
+
+.main {
+    display: flex;
+    justify-content: center;
+    padding: 35px;
+    flex-direction: column;
+}
+
+.row-flex-box {
+    display: flex;
+    flex-direction: row;
+}
+
+.title-input {
+    font-size: 20px;
+}
+
+
+.variable-fields {
+
+}

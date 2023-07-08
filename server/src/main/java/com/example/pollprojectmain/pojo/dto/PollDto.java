@@ -44,14 +44,14 @@ public class PollDto {
 
     @Nullable
     @Pattern(
-            regexp = "^P(?:\\d+D)",
+            regexp = "^P(?:(\\d{1,3})D)?T?(?:(\\d{1,3})H)?(?:(\\d{1,3})M)?$",
             message = "The proper format of period is ISO-8610"
     )
     private String period;
 
     @Nullable
     @Pattern(
-            regexp = "^P(?:\\d+D)?(?:T(?:\\d+H)?(?:\\d+M)?(?:\\d+S)?)?$",
+            regexp = "^P(?:\\d{1,3}D)?(?:T(?:\\d{1,3}H)?(?:\\d{1,3}M)?(?:\\d{1,3}S)?)?$",
             message = "The proper format of voting time is ISO-8610"
     )
     private String votingTime;

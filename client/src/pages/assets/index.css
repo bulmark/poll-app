@@ -1,0 +1,33 @@
+.header {
+    padding: 0px;
+    height: 60px;
+    width: 100%;
+    z-index: 1;
+    position: fixed;
+    display: flex;
+    align-content: center;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #FFFF;
+    border-bottom: 1px solid rgba(37,37,37,0.1);
+}
+
+/*.siderMenu::before {*/
+/*    content: '';*/
+/*    display: block;*/
+/*    width: 100px;*/
+/*    height: 2px;*/
+/*    background-color: #FFFF;*/
+/*}*/
+
+.sider-menu {
+    margin-top: 30px;
+    position: fixed;
+    width: 200px;
+    height: 100%;
+}
+
+.content {
+    padding-top: 60px;
+    margin: 0;
+}

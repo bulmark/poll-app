@@ -2,10 +2,7 @@ package com.example.pollprojectmain.contoller;
 
 import com.example.pollprojectmain.config.jwt.JwtUtils;
 import com.example.pollprojectmain.model.User;
-import com.example.pollprojectmain.pojo.ChangePasswordRequest;
-import com.example.pollprojectmain.pojo.JwtResponse;
-import com.example.pollprojectmain.pojo.LoginRequest;
-import com.example.pollprojectmain.pojo.Response;
+import com.example.pollprojectmain.pojo.*;
 import com.example.pollprojectmain.pojo.dto.UserDto;
 import com.example.pollprojectmain.service.Impl.UserDetailsImpl;
 import com.example.pollprojectmain.service.UserService;
@@ -36,8 +33,8 @@ public class UserController {
     @PutMapping("/admin/users/{userId}")
     @PreAuthorize("hasRole('ADMIN')")
     @SecurityRequirement(name = "JWT")
-    public Response updateUser(@PathVariable Integer userId, @RequestBody UserDto userDto) {
-        return userService.update(userId, userDto);
+    public Response updateUser(@PathVariable Integer userId, @RequestBody UpdateUserRequest updateUserRequest) {
+        return userService.update(userId, updateUserRequest);
     }
 
     @PutMapping("/users/password")
@@ -74,8 +71,8 @@ public class UserController {
 
 
     @PostMapping("/signup")
-    public Response createUser(@RequestBody UserDto userDto) {
-        return userService.create(userDto);
+    public Response createUser(@RequestBody SignUpRequest signUpRequest) {
+        return userService.create(signUpRequest);
     }
 
     @GetMapping("/users/{id}")

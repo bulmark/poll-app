@@ -20,8 +20,8 @@ public class MessageProvider {
         return "New poll successfully created with id " + pollId;
     }
 
-    public static  String createUserSuccess() {
-        return "New user successfully created";
+    public static  String createUserSuccess(Integer userId) {
+        return "New user with id " + userId + "  successfully created";
     }
 
     public static  String changePasswordSuccess(Integer userId) {
@@ -55,14 +55,18 @@ public class MessageProvider {
     }
 
     public static String incorrectListOfQuestionsAnswered() {
-        return "Submitted a vote for a question from another poll, or not all questions were voted on";
+        return "The given vote list of answered questions is incorrect ";
     }
 
     public static String userExistsWithEmail(String email) {
-        return "Submitted a vote for a question from another poll, or not all questions were voted on";
+        return "User with such email already exists";
     }
     public static String userExistsWithUsername(String username) {
-        return "Submitted a vote for a question from another poll, or not all questions were voted on";
+        return "User with such username already exists";
+    }
+
+    public static String userInNotOwner(Integer id) {
+        return "User with " + id + " doesnt own this poll";
     }
 
 

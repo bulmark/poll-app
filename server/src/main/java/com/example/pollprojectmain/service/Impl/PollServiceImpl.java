@@ -21,7 +21,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import com.example.pollprojectmain.util.MessageProvider;
 
-import java.awt.print.Pageable;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -83,7 +82,13 @@ public class PollServiceImpl implements PollService {
     @Override
     public Page<Poll> getByOwner(Integer ownerId, Integer page, Integer limit) {
         User user = userService.findById(ownerId);
-        return pollRepository.findPollsByOwner(user, PageRequest.of(page, limit));
+
+        List<Poll> createdPolls = pollRepository.findPollsByOwner(user);
+
+
+        PageRequest pageRequest = PageRequest.of(page, limit);
+        return new PageImpl<>(createdPolls, pageRequest, createdPolls.size());
+//        return pollRepository.findPollsByOwner(user, PageRequest.of(page, limit));
     }
 
     @Override
@@ -141,6 +146,7 @@ public class PollServiceImpl implements PollService {
 
             question.getAnswers().forEach(answer -> answer.setQuestion(question));
         });
+        poll.setRepeated(false);
         Integer pollId = pollRepository.save(poll).getId();
         return new Response(
                 MessageProvider.createPollSuccess(pollId),
@@ -149,10 +155,14 @@ public class PollServiceImpl implements PollService {
     }
 
     @Override
-    public Response allowToVote(Integer pollId, List<UserDto> usersDto) {
+    public Response allowToVote(Integer pollId, Integer idOfRequester, List<UserDto> usersDto) {
         Poll poll = pollRepository.findById(pollId).orElseThrow(() ->
                 new EntityNotFoundException(MessageProvider.pollNotFound(pollId))
         );
+
+        if (poll.getOwner().getId() != idOfRequester) {
+            throw new AccessException(MessageProvider.userInNotOwner(idOfRequester));
+        }
 
 
         for (var userDto : usersDto) {
@@ -250,11 +260,11 @@ public class PollServiceImpl implements PollService {
     }
 
     @Override
-    @Scheduled(cron = "0 0 * * * ?")
+    @Scheduled(cron = " 0 * * * * *")
     public void repeatPolls(){
             List<Poll> polls = pollRepository.findAll();
             for (Poll poll : polls) {
-                if (!poll.isReadyToRepeat()) {
+                if (poll.isReadyToRepeat()) {
                     poll.setRepeated(true);
                     Poll copyPoll = poll.produceCopy();
                     pollRepository.saveAllAndFlush(List.of(poll, copyPoll ));

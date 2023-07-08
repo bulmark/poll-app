@@ -13,6 +13,7 @@ import java.sql.Timestamp;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -96,12 +97,15 @@ public class Poll {
 
     @JsonIgnore
     public Boolean isReadyToRepeat() {
-        if (isOutDated() || period == null) {
+        if (getRepeated() || isOutDated() || period == null) {
             return false;
         }
 
-        LocalDate now = LocalDate.now();
-        LocalDate theDateOfRespawn = Timestamp.from(getCreateAt().toInstant().plus(period)).toLocalDateTime().toLocalDate();
+        LocalDateTime now = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES);
+        LocalDateTime theDateOfRespawn = Timestamp.from(getCreateAt().toInstant()
+                .plus(period))
+                .toLocalDateTime()
+                .truncatedTo(ChronoUnit.MINUTES);
 
         if (now.compareTo(theDateOfRespawn) != 0) {
             return false;

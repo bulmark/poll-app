@@ -79,11 +79,12 @@ public class PollController {
         return pollService.create(userId, poll);
     }
 
-    @PutMapping("/polls/{id}/spectators")
+    @PutMapping("/polls/{id}/voters")
     @PreAuthorize("hasRole('MODERATOR')")
     @SecurityRequirement(name = "JWT")
     public Response allowToVote(@RequestBody List<UserDto> usersDto, @PathVariable Integer id) {
-        return pollService.allowToVote(id, usersDto);
+        Integer userId = SecurityUtils.getCurrentUserDetails().getId();
+        return pollService.allowToVote(id, userId, usersDto);
     }
 
     @PutMapping("/polls/{pollId}")

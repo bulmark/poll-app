@@ -54,9 +54,9 @@ public class SecurityConfiguration {
                 .authorizeHttpRequests((auth) -> auth
                         .requestMatchers("/signin").permitAll()
                         .requestMatchers("/signup").permitAll()
-                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/swagger-ui.html", "/swagger-ui/**","/v3/api-docs/**").permitAll()
-                        .anyRequest().authenticated()
+//                       .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        .anyRequest().permitAll()
                 )
 //                .cors(httpSecurityCorsConfigurer -> httpSecurityCorsConfigurer
 //                        .configurationSource(corsConfigurationSource()))
